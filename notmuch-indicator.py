@@ -9,6 +9,7 @@ import notmuch
 import subprocess
 import os.path
 
+desktop_file = os.path.expanduser('~/.env/notmuch-indicator/notmuch.desktop')
 logging.basicConfig(level=logging.DEBUG)
 
 poll_period = 2*60
@@ -78,7 +79,7 @@ if __name__ == "__main__":
         indicators = {}
         server = indicate.indicate_server_ref_default()
         server.set_type('message.mail')
-        server.set_desktop_file(os.path.expanduser('~/.env/mail/notmuch.desktop'))
+        server.set_desktop_file(desktop_file)
         server.connect('server-display', server_display_cb)
 
         gobject.timeout_add_seconds(poll_period, update_cb, indicators)
