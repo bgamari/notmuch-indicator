@@ -1,0 +1,8 @@
+[Desktop Entry]
+Version=1.0
+Name=Notmuch
+GenericName=Mail Client
+X-GNOME-FullName=Notmuch Mail
+Comment=Search, read, and compose mail
+Type=Application
+Icon=mail-inbox
