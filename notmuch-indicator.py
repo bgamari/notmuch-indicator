@@ -55,7 +55,7 @@ def get_counts():
                 counts[name] = q.count_messages()
         return counts
 
-def update_cb(indicators):
+def update(indicators):
         counts = get_counts()
         logging.debug('Update')
         for name in searches.keys():
@@ -76,8 +76,6 @@ def update_cb(indicators):
                         logging.debug('Hiding indicator "%s"' % name)
                         indicator.hide()
 
-        return True
-
 def main():
         indicators = {}
         server = indicate.indicate_server_ref_default()
@@ -89,7 +87,10 @@ def main():
 
         if poll_period is not None:
                 logging.info('Polling every %d seconds' % poll_period)
-                gobject.timeout_add_seconds(poll_period, update_cb, indicators)
+                def cb():
+                      update(indicators)
+                      return True
+                gobject.timeout_add_seconds(poll_period, cb)
                 have_update_condition = True
 
         if watch_file is not None:
