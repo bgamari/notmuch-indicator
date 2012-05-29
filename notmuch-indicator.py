@@ -10,7 +10,8 @@ import subprocess
 import os.path
 
 # Configuration:
-poll_period = 2*60
+poll_period = 2*60  # seconds
+watch_file = '/tmp/notmuch.watch'
 searches = {
         'Inbox': 'tag:inbox',
         'Unseen': 'tag:unseen',
@@ -56,7 +57,7 @@ def get_counts():
 
 def update_cb(indicators):
         counts = get_counts()
-        logging.debug('update')
+        logging.debug('Update')
         for name in searches.keys():
                 if name not in indicators:
                         logging.debug('Creating indicator "%s"' % name)
@@ -77,14 +78,40 @@ def update_cb(indicators):
 
         return True
 
-if __name__ == "__main__":
+def main():
         indicators = {}
         server = indicate.indicate_server_ref_default()
         server.set_type('message.mail')
         server.set_desktop_file(desktop_file)
         server.connect('server-display', server_display_cb)
 
-        gobject.timeout_add_seconds(poll_period, update_cb, indicators)
+        have_update_condition = False
+
+        if poll_period is not None:
+                logging.info('Polling every %d seconds' % poll_period)
+                gobject.timeout_add_seconds(poll_period, update_cb, indicators)
+                have_update_condition = True
+
+        if watch_file is not None:
+                import gio
+                open(watch_file, 'w').close() # Make sure watch_file exists
+                def cb(monitor, file, a, b):
+                        logging.debug('Watch file changed')
+                        update_cb(indicators)
+                f = gio.File(watch_file)
+                monitor = f.monitor_file()
+                if monitor is None:
+                        raise RuntimeError('Failed to monitor watch file')
+                monitor.connect('changed', cb)
+                logging.info('Watching %s' % watch_file)
+                have_update_condition = True
+
+        if not have_update_condition:
+                logging.warn("You haven't configured any update condition. Set either poll_period or watch_file")
+                return
+        
         update_cb(indicators)
         gtk.main()
 
+if __name__ == "__main__":
+        main()
