@@ -16,7 +16,7 @@ poll_period = 2*60
 searches = {
         'Inbox': 'tag:inbox',
         'Unseen': 'tag:unseen',
-}
+        }
 
 
 def display_search_client(query):
@@ -51,7 +51,7 @@ def get_counts():
                 q = notmuch.Query(db, query)
                 counts[name] = q.count_messages()
         return counts
-        
+
 def update_cb(indicators):
         counts = get_counts()
         logging.debug('update')
