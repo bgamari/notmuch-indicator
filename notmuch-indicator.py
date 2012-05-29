@@ -9,14 +9,16 @@ import notmuch
 import subprocess
 import os.path
 
-desktop_file = os.path.expanduser('~/.env/notmuch-indicator/notmuch.desktop')
-logging.basicConfig(level=logging.DEBUG)
-
+# Configuration:
 poll_period = 2*60
 searches = {
         'Inbox': 'tag:inbox',
         'Unseen': 'tag:unseen',
         }
+
+
+desktop_file = os.path.expanduser('~/.env/notmuch-indicator/notmuch.desktop')
+logging.basicConfig(level=logging.DEBUG)
 
 
 def display_search_client(query):
