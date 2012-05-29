@@ -11,3 +11,11 @@ The searches created by `notmuch-indicator` are specified by the
 `poll_period` seconds (if not `None`) or every time `watch_file` (if
 not `None`) is changed.
 
+Dependencies
+------------
+
+ * notmuch python bindings
+ * python-indicate
+ * python-gobject
+ * optional: xdotool (to raise emacs window)
+
