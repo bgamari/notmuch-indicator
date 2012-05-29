@@ -1,0 +1,13 @@
+notmuch-indicator
+=================
+
+This is a simple hack to integrate
+[notmuch](http://www.notmuchmail.org/) into Ubuntu's
+[Messaging menu](https://wiki.ubuntu.com/MessagingMenu). The script's
+few configuration options can be found in its first few lines.
+
+The searches created by `notmuch-indicator` are specified by the
+`searches` option. These searches will be refreshed every
+`poll_period` seconds (if not `None`) or every time `watch_file` (if
+not `None`) is changed.
+
