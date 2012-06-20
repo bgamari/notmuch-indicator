@@ -98,7 +98,7 @@ def main():
                 open(watch_file, 'w').close() # Make sure watch_file exists
                 def cb(monitor, file, a, b):
                         logging.debug('Watch file changed')
-                        update_cb(indicators)
+                        update(indicators)
                 f = gio.File(watch_file)
                 monitor = f.monitor_file()
                 if monitor is None:
@@ -111,7 +111,7 @@ def main():
                 logging.warn("You haven't configured any update condition. Set either poll_period or watch_file")
                 return
         
-        update_cb(indicators)
+        update(indicators)
         gtk.main()
 
 if __name__ == "__main__":
