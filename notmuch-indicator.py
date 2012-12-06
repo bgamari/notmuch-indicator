@@ -13,7 +13,7 @@ import os.path
 poll_period = 2*60  # seconds
 watch_file = '/tmp/notmuch.watch'
 searches = {
-        'Inbox': 'tag:inbox',
+        'Inbox': 'tag:inbox and tag:unseen',
         'Unseen': 'tag:unseen',
         }
 
@@ -82,6 +82,7 @@ def main():
         server.set_type('message.mail')
         server.set_desktop_file(desktop_file)
         server.connect('server-display', server_display_cb)
+        server.show()
 
         have_update_condition = False
 
