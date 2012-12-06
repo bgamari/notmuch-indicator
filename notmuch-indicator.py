@@ -1,8 +1,9 @@
 #!/usr/bin/python
 
-import indicate
-import gobject
-import gtk
+from gi.repository.MessagingMenu import App
+import gi.repository.Gtk as Gtk
+import gi.repository.Gio as Gio
+import gi.repository.GObject as GObject
 from time import time
 import logging
 import notmuch
@@ -21,6 +22,7 @@ searches = {
 desktop_file = os.path.expanduser('~/.env/notmuch-indicator/notmuch.desktop')
 logging.basicConfig(level=logging.DEBUG)
 
+app = None
 
 def display_search_client(query):
         p = subprocess.Popen(['emacsclient', '-s', 'notmuch', '-e', '(notmuch-search "%s")' % query],)
@@ -38,14 +40,9 @@ def display_search_noclient(query):
 
 display_search = display_search_noclient
 
-def display_cb(indicator, timestamp):
-        name = indicator.get_property('name')
-        logging.info('indicator display: %s' % name)
-        display_search(searches[name])
-
-def server_display_cb(server, timestamp):
-        logging.info('server display')
-        start_notmuch()
+def display_source_cb(app, source):
+        logging.info('indicator display: %s' % source)
+        display_search(searches[source])
 
 def get_counts():
         db = notmuch.Database()
@@ -55,43 +52,36 @@ def get_counts():
                 counts[name] = q.count_messages()
         return counts
 
-def update(indicators):
+def update():
         counts = get_counts()
         logging.debug('Update')
         for name in searches.keys():
-                if name not in indicators:
+                if not app.has_source(name):
                         logging.debug('Creating indicator "%s"' % name)
-                        indicator = indicate.Indicator()
-                        indicator.set_property('name', name)
-                        indicator.connect('user-display', display_cb)
-                        indicators[name] = indicator
-
-                indicator = indicators[name]
-                indicator.set_property_time('time', time())
-                indicator.set_property('count', str(counts[name]))
-                if counts[name]:
+                        icon = None #Gio.Icon.new_for_string('message.mail')
+                        app.append_source(name, icon, name)
+                if counts[name] > 0:
                         logging.debug('Showing indicator "%s"' % name)
-                        indicator.show()
+                        app.set_source_time(name, time())
+                        app.set_source_count(name, counts[name])
                 else:
                         logging.debug('Hiding indicator "%s"' % name)
-                        indicator.hide()
+                        app.remove_source(name)
 
 def main():
-        indicators = {}
-        server = indicate.indicate_server_ref_default()
-        server.set_type('message.mail')
-        server.set_desktop_file(desktop_file)
-        server.connect('server-display', server_display_cb)
-        server.show()
+        global app
+        app = App.new('notmuch.desktop')
+        app.connect('activate-source', display_source_cb)
+        app.register()
 
         have_update_condition = False
 
         if poll_period is not None:
                 logging.info('Polling every %d seconds' % poll_period)
                 def cb():
-                      update(indicators)
+                      update()
                       return True
-                gobject.timeout_add_seconds(poll_period, cb)
+                GObject.timeout_add_seconds(poll_period, cb)
                 have_update_condition = True
 
         if watch_file is not None:
@@ -99,8 +89,8 @@ def main():
                 open(watch_file, 'w').close() # Make sure watch_file exists
                 def cb(monitor, file, a, b):
                         logging.debug('Watch file changed')
-                        update(indicators)
-                f = gio.File(watch_file)
+                        update()
+                f = Gio.File(watch_file)
                 monitor = f.monitor_file()
                 if monitor is None:
                         raise RuntimeError('Failed to monitor watch file')
@@ -112,8 +102,8 @@ def main():
                 logging.warn("You haven't configured any update condition. Set either poll_period or watch_file")
                 return
         
-        update(indicators)
-        gtk.main()
+        update()
+        Gtk.main()
 
 if __name__ == "__main__":
         main()
