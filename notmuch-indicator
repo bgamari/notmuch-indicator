@@ -20,7 +20,7 @@ searches = {
 
 
 desktop_file = os.path.expanduser('~/.env/notmuch-indicator/notmuch.desktop')
-logging.basicConfig(level=logging.DEBUG)
+#logging.basicConfig(level=logging.DEBUG)
 
 app = None
 
