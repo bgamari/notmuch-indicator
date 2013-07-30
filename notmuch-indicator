@@ -9,15 +9,26 @@ import logging
 import notmuch
 import subprocess
 import os.path
+import json
 
-# Configuration:
-poll_period = 2*60  # seconds
-watch_file = '/tmp/notmuch.watch'
-searches = {
-        'Inbox': 'tag:inbox and tag:unseen',
-        'Unseen': 'tag:unseen',
+default_config = {
+        'poll_period': 2*60,  # seconds
+        'watch_file': os.path.expanduser('~/.notmuch.watch'),
+        'desktop_file': '/usr/share/applications/notmuch.desktop',
+        'searches': { 
+                'Inbox': 'tag:inbox',
         }
-desktop_file = '/usr/share/applications/notmuch.desktop'
+}
+
+config_file = os.path.expanduser('~/.notmuch-indicator')
+if not os.path.isfile(config_file):
+        json.dump(default_config, open(config_file, 'w'), indent=4)
+config = json.load(open(config_file))
+
+poll_period = config['poll_period']
+watch_file = config['watch_file']
+searches = config['searches']
+desktop_file = config['desktop_file']
 
 #logging.basicConfig(level=logging.DEBUG)
 
