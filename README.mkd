@@ -17,5 +17,5 @@ Dependencies
  * notmuch python bindings
  * python-indicate
  * python-gobject
- * optional: xdotool (to raise emacs window)
+ * optional: xdotool (to raise emacs window when necessary)
 
