@@ -17,9 +17,8 @@ searches = {
         'Inbox': 'tag:inbox and tag:unseen',
         'Unseen': 'tag:unseen',
         }
+desktop_file = '/usr/share/applications/notmuch.desktop'
 
-
-desktop_file = os.path.expanduser('~/.env/notmuch-indicator/notmuch.desktop')
 #logging.basicConfig(level=logging.DEBUG)
 
 app = None
