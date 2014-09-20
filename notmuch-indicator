@@ -72,6 +72,7 @@ def update():
                         app.append_source(name, icon, name)
                 if counts[name] > 0:
                         logging.debug('Showing indicator "%s"' % name)
+                        app.draw_attention(name)
                         app.set_source_time(name, time())
                         app.set_source_count(name, counts[name])
                 else:
@@ -95,13 +96,12 @@ def main():
                 have_update_condition = True
 
         if watch_file is not None:
-                import gio
                 open(watch_file, 'w').close() # Make sure watch_file exists
                 def cb(monitor, file, a, b):
                         logging.debug('Watch file changed')
                         update()
-                f = Gio.File(watch_file)
-                monitor = f.monitor_file()
+                f = Gio.file_new_for_path(watch_file)
+                monitor = f.monitor_file(Gio.FileMonitorFlags.NONE, None)
                 if monitor is None:
                         raise RuntimeError('Failed to monitor watch file')
                 monitor.connect('changed', cb)
